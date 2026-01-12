@@ -8,7 +8,7 @@ export default function AdminPage() {
   const [allowed, setAllowed] = useState(false);
 
   const login = () => {
-    if (input === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
+    if (input !== process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
       setAllowed(true);
     } else {
       alert("Wrong password");

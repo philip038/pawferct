@@ -1,111 +1,77 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
+import Image from "next/image";
+import { useState } from "react";
 
-export type Product = {
-  id: string;
+type Product = {
   name: string;
-  description: string[];
-  images: string[];
   category: string;
-  shopUrl: string;
+  description: string[] | string;
+  image?: string;
+  images?: string[];
+  shopeeUrl: string;
 };
 
-type Props = {
-  product: Product;
-};
-
-export default function ProductCard({ product }: Props) {
-  const [current, setCurrent] = useState(0);
+export default function ProductCard({ product }: { product: Product }) {
   const [expanded, setExpanded] = useState(false);
 
-  const nextImage = () =>
-    setCurrent((prev) => (prev + 1) % product.images.length);
+  const imageSrc =
+    product.image && product.image.trim() !== ""
+      ? product.image
+      : product.images?.[0] && product.images[0].trim() !== ""
+      ? product.images[0]
+      : "/placeholder.png";
 
-  const prevImage = () =>
-    setCurrent((prev) =>
-      prev === 0 ? product.images.length - 1 : prev - 1
-    );
+  const descriptionArray =
+    Array.isArray(product.description)
+      ? product.description
+      : product.description
+          .split("\n")
+          .map((d) => d.trim())
+          .filter(Boolean);
 
   return (
-    <article className="border rounded-2xl bg-white p-4 flex flex-col gap-4 shadow-sm hover:shadow-md transition">
+    <div className="border rounded-lg p-4 shadow-sm flex flex-col">
       {/* IMAGE */}
-      <div className="relative w-full aspect-square bg-gray-50 rounded-xl overflow-hidden">
+      <div className="relative w-full h-48 mb-3">
         <Image
-          src={product.images[current]}
+          src={imageSrc}
           alt={product.name}
           fill
-          className="object-contain"
-          sizes="(max-width: 768px) 100vw, 33vw"
-          priority
+          className="object-contain rounded-lg"
         />
-
-        {product.images.length > 1 && (
-          <>
-            <button
-              onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full px-2 py-1 text-sm"
-            >
-              ‹
-            </button>
-            <button
-              onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full px-2 py-1 text-sm"
-            >
-              ›
-            </button>
-          </>
-        )}
       </div>
 
-      {/* CATEGORY */}
-      <span className="text-xs text-gray-500 uppercase tracking-wide">
-        {product.category}
-      </span>
-
       {/* TITLE */}
-      <h3 className="font-semibold text-base leading-snug">
-        {product.name}
-      </h3>
+      <h3 className="font-semibold text-lg">{product.name}</h3>
+      <p className="text-sm text-gray-500">{product.category}</p>
 
       {/* DESCRIPTION */}
-      <ul className="text-sm text-gray-600 list-disc pl-4 space-y-1">
-        {(expanded ? product.description : product.description.slice(0, 3)).map(
+      <ul className="text-sm text-gray-600 list-disc pl-4 space-y-1 mt-2">
+        {(expanded ? descriptionArray : descriptionArray.slice(0, 3)).map(
           (item, i) => (
             <li key={i}>{item}</li>
           )
         )}
       </ul>
 
-      {product.description.length > 3 && (
+      {descriptionArray.length > 3 && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-sm text-blue-600 w-fit"
+          className="text-xs text-blue-600 mt-2 self-start"
         >
-          {expanded ? 'Read less' : 'Read more'}
+          {expanded ? "Show less" : "Show more"}
         </button>
       )}
 
-      {/* ACTIONS */}
-      <div className="mt-auto flex gap-2">
-        <Link
-          href={`/products/${product.id}`}
-          className="flex-1 border rounded-full py-2 text-sm text-center hover:bg-gray-100"
-        >
-          View details
-        </Link>
-
-        <a
-          href={product.shopUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 bg-orange-500 text-white rounded-full py-2 text-sm text-center hover:bg-orange-600"
-        >
-          Shop now
-        </a>
-      </div>
-    </article>
+      {/* CTA */}
+      <a
+        href={product.shopeeUrl}
+        target="_blank"
+        className="mt-auto bg-orange-500 text-white text-center py-2 rounded-md text-sm"
+      >
+        Buy on Shopee
+      </a>
+    </div>
   );
 }

@@ -20,12 +20,26 @@ export default function AddProductForm() {
     shopeeUrl: "",
   });
 
+  const safeImages =
+    product.images.length > 0 && product.images[0].trim() !== ""
+      ? product.images
+      : ["/placeholder.png"];
+
+  const previewProduct = {
+    ...product,
+    description: product.description
+      .split("\n")
+      .map((d) => d.trim())
+      .filter(Boolean),
+    images: safeImages,
+  };
+
   const codeOutput = `{
   id: ${product.id},
   name: "${product.name}",
   category: "${product.category}",
   description: \`${product.description}\`,
-  images: ${JSON.stringify(product.images, null, 2)},
+  images: ${JSON.stringify(safeImages, null, 2)},
   shopeeUrl: "${product.shopeeUrl}",
 },`;
 
@@ -36,16 +50,24 @@ export default function AddProductForm() {
         <input
           placeholder="Product name"
           className="w-full border rounded px-3 py-2"
-          onChange={(e) => setProduct({ ...product, name: e.target.value })}
+          value={product.name}
+          onChange={(e) =>
+            setProduct({ ...product, name: e.target.value })
+          }
         />
 
         <select
           className="w-full border rounded px-3 py-2"
-          onChange={(e) => setProduct({ ...product, category: e.target.value })}
+          value={product.category}
+          onChange={(e) =>
+            setProduct({ ...product, category: e.target.value })
+          }
         >
           <option value="">Select category</option>
           {CATEGORIES.map((c) => (
-            <option key={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
 
@@ -53,13 +75,14 @@ export default function AddProductForm() {
           placeholder="Description (each line = bullet)"
           rows={5}
           className="w-full border rounded px-3 py-2"
+          value={product.description}
           onChange={(e) =>
             setProduct({ ...product, description: e.target.value })
           }
         />
 
         <textarea
-          placeholder="Image paths (one per line)"
+          placeholder="Image URLs (one per line)"
           rows={4}
           className="w-full border rounded px-3 py-2"
           onChange={(e) =>
@@ -76,6 +99,7 @@ export default function AddProductForm() {
         <input
           placeholder="Shopee affiliate URL"
           className="w-full border rounded px-3 py-2"
+          value={product.shopeeUrl}
           onChange={(e) =>
             setProduct({ ...product, shopeeUrl: e.target.value })
           }
@@ -85,8 +109,8 @@ export default function AddProductForm() {
       {/* LIVE PREVIEW */}
       <div>
         <h3 className="font-semibold mb-2">Live Preview</h3>
-        {product.name && product.images.length > 0 && (
-          <ProductCard product={product as any} />
+        {product.name && product.category && product.shopeeUrl && (
+          <ProductCard product={previewProduct as any} />
         )}
       </div>
 
